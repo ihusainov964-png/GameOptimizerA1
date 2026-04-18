@@ -1,16 +1,37 @@
+<div align="center">
+
 # 🎮 GameOptimizer AI ✨
 ### *Твой тёплый Pixar-друг для максимального FPS*
 
-<div align="center">
-
-![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)
-![CustomTkinter](https://img.shields.io/badge/GUI-CustomTkinter-orange?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Style](https://img.shields.io/badge/Style-Pixar%202026-pink?style=for-the-badge)
+[![Build](https://github.com/YOUR_USERNAME/GameOptimizerAI/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_USERNAME/GameOptimizerAI/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/YOUR_USERNAME/GameOptimizerAI?style=flat-square&color=00D4C8)](https://github.com/YOUR_USERNAME/GameOptimizerAI/releases/latest)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square&logo=python)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 **«Я краснею от умилства» — вот что чувствуешь, запуская GameOptimizer AI** 🌸
 
 </div>
+
+---
+
+## ⚡ Быстрая установка
+
+### 🪟 Windows — просто скачай и запусти
+> Ничего устанавливать не нужно!
+
+**[⬇️ Скачать GameOptimizerAI.exe](https://github.com/YOUR_USERNAME/GameOptimizerAI/releases/latest)**
+
+1. Скачай `.zip` из [Releases](https://github.com/YOUR_USERNAME/GameOptimizerAI/releases/latest)
+2. Распакуй
+3. Запусти `GameOptimizerAI.exe` — готово! ✨
+
+### 🐍 Из исходников (любая ОС)
+```bash
+git clone https://github.com/YOUR_USERNAME/GameOptimizerAI.git
+cd GameOptimizerAI
+pip install -r requirements.txt
+python main.py
+```
 
 ---
 
@@ -19,208 +40,132 @@
 **GameOptimizer AI** — это не просто оптимизатор игр. Это твой личный Pixar-друг, который:
 - 🤗 Знает тебя по имени и заботится о тебе
 - 🎯 Подбирает оптимизации **персонально под твоё железо**
-- 🛡️ Никогда не трогает античит и не банит аккаунты
+- 🛡️ Никогда не трогает античит — аккаунты в безопасности
 - 🚀 Реально поднимает FPS на 15–60%
-- 💬 Болтает с тобой как настоящий Pixar-персонаж
+- 💬 Болтает как настоящий Pixar-персонаж
 
-Дизайн вдохновлён фильмами **Pixar 2026** (Soul, Inside Out 2, Elemental) — мягкий тёплый свет, округлые формы, нежные цвета и ощущение заботы и радости.
+Дизайн вдохновлён **Pixar 2026** (Soul, Inside Out 2, Elemental) — мягкое тёплое свечение, округлые формы, нежные цвета.
 
 ---
 
 ## 🎮 Поддерживаемые игры
 
-| Игра | Категории оптимизации |
-|------|----------------------|
-| 🔴 Cyberpunk 2077 | Графика, Производительность, RTX, Стабильность |
-| 🟡 GTA V | FPS, Память, Онлайн-стабильность |
-| 🔵 Fortnite | Конкурентный FPS, Задержка, Визуал |
-| 🟣 Valorant | Про-настройки, Минимальный пинг |
-| ⚔️ Elden Ring | Стабильность, Устранение фризов |
-| 🟤 Rust | Серверная оптимизация, Память |
-| 🩸 Dead by Daylight | FPS, Анти-фриз |
-| 🪖 World of Tanks | Графика, Пинг |
-| 🟠 PUBG | Конкурентные настройки |
-| ✈️ War Thunder | FPS, Стабильность |
-| 🟢 Counter-Strike 2 | Про-FPS, Минимальный инпут-лаг |
+| Игра | Оптимизаций | Категории |
+|------|------------|-----------|
+| 🔴 Cyberpunk 2077 | 13 | Графика, FPS, Стабильность, NVIDIA |
+| 🟡 GTA V | 10 | Графика, FPS, Память |
+| 🔵 Fortnite | 9 | Конкурентный FPS, Задержка |
+| 🟣 Valorant | 8 | Про-настройки, Античит |
+| ⚔️ Elden Ring | 7 | Стабильность, Фризы |
+| 🟤 Rust | 7 | Серверная оптимизация |
+| 🩸 Dead by Daylight | 6 | FPS, Анти-фриз |
+| 🪖 World of Tanks | 6 | Графика, Пинг |
+| 🟠 PUBG | 6 | Конкурентные настройки |
+| ✈️ War Thunder | 6 | FPS, Онлайн |
+| 🟢 Counter-Strike 2 | 10 | Про-FPS, NVIDIA, Инпут-лаг |
+
+**Итого: 88 оптимизаций** персонально подобранных под твоё железо
 
 ---
 
-## 🚀 Быстрый старт
+## 🤖 AI-друг Лuma
 
-### Требования
-- Python 3.11+
-- Windows 10/11 (рекомендуется)
-- NVIDIA GPU (опционально, для NVIDIA-функций)
+При первом запуске Лuma познакомится с тобой:
+> *"Привет! Я Лuma — твой личный игровой друг 💕 Как тебя зовут?"*
 
-### Установка
+Лuma знает твоё имя, поддерживает в трудных матчах, радуется победам и рассказывает анекдоты про игры.
 
-```bash
-# 1. Клонируй репозиторий
-git clone https://github.com/yourusername/GameOptimizerAI.git
-cd GameOptimizerAI
+---
 
-# 2. Создай виртуальное окружение (рекомендуется)
-python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
+## 🛡️ Безопасность (античит)
 
-# 3. Установи зависимости
-pip install -r requirements.txt
+**НИКОГДА не трогаем:**
+`EasyAntiCheat` · `BattlEye` · `Vanguard` · `Steam` · `EpicGamesLauncher` · `FaceIT`
 
-# 4. Запусти!
-python main.py
+**Безопасно закрываем:**
+`Discord Overlay` · `GeForce Experience` · `RGB-программы` · `iCUE` · `Aura Sync`
+
+---
+
+## 🏗️ Для разработчиков
+
+### Структура проекта
+```
+GameOptimizerAI/
+├── main.py                    # Точка входа
+├── requirements.txt
+├── GameOptimizerAI.spec       # PyInstaller конфиг
+├── .github/workflows/
+│   └── build.yml              # Auto-build → .exe на GitHub
+├── core/
+│   ├── pc_detector.py         # CPU/GPU/RAM → тир ПК
+│   ├── optimizer_engine.py    # Движок оптимизации
+│   ├── launcher.py            # Steam/Epic/Riot/Wargaming
+│   ├── ai_friend.py           # Pixar AI-характер
+│   └── parasite_cleaner.py    # Безопасная очистка
+├── ui/
+│   ├── app.py                 # Главное окно + SplashScreen
+│   ├── game_card.py           # Карточки игр
+│   ├── game_window.py         # Окно оптимизации
+│   ├── ai_friend.py           # Панель чата
+│   ├── widgets.py             # Кастомные виджеты
+│   └── theme.py               # Pixar-тема и цвета
+├── data/
+│   └── games_data.py          # База игр и оптимизаций
+└── utils/
+    ├── settings.py            # Сохранение настроек
+    └── logger.py              # Логирование
 ```
 
-### Первый запуск
-При первом запуске появится тёплое приветствие от AI-друга:
-> *"Привет! Я так рада тебя видеть! 💕 Давай познакомимся — как тебя зовут?"*
-
-Введи своё имя и начни путешествие! ✨
-
----
-
-## 🧠 Умный запуск игр
-
-GameOptimizer AI автоматически определяет, через какой лаунчер нужно запустить игру:
-
-| Лаунчер | Поддержка |
-|---------|-----------|
-| Steam | ✅ `steam://rungameid/{appid}` |
-| Epic Games | ✅ `com.epicgames.launcher://` |
-| Battle.net | ✅ `battlenet://` |
-| Прямой EXE | ✅ Обнаружение пути |
-
-**Почему это важно:** Запуск через правильный лаунчер гарантирует корректную работу античита (EAC, BattlEye, Vanguard и т.д.) и предотвращает блокировки аккаунта.
-
----
-
-## 🧹 Безопасная очистка паразитов
-
-Оптимизатор закрывает **только безопасные** фоновые процессы:
-
-### ✅ Безопасно закрываем:
-- Discord Overlay
-- GeForce Experience
-- MSI Afterburner (оверлей)
-- RGB-программы (iCUE, Aura Sync, etc.)
-- Неиспользуемые браузеры
-- Torrent-клиенты
-
-### 🛡️ НИКОГДА не трогаем (защищённый список):
-- `EasyAntiCheat.exe`
-- `BEService.exe` (BattlEye)
-- `vgc.exe` (Vanguard)
-- `Steam.exe`
-- `EpicGamesLauncher.exe`
-- Системные процессы Windows
-
----
-
-## 🎨 Pixar-стиль дизайна
-
-Приложение создано в стиле **«я краснею»** — тёплый уютный Pixar 2026:
-
-- 🌙 **Тёмная основа** — комфортно для ночного гейминга
-- ✨ **Мягкие светящиеся акценты** — бирюзовый, тёплый оранжевый, нежный розовый
-- 🎭 **Анимации с душой** — плавные, живые, как в Pixar-фильме
-- 💬 **AI-друг с характером** — заботливый, игривый, поддерживающий
-
----
-
-## 🤖 AI-друг (Pixar Personality)
-
-AI-друг обладает настоящим характером:
-- Знает твоё имя и всегда обращается к тебе лично
-- Поддерживает в трудных игровых моментах
-- Радуется твоим успехам
-- Рассказывает анекдоты про игры
-- Мотивирует и вдохновляет
-
-> Система построена на правилах (rule-based), но архитектура готова к подключению реального LLM (OpenAI / Anthropic API).
-
----
-
-## 🔧 Как добавить новую игру
-
-1. Открой `data/games_data.py`
-2. Добавь новый словарь в список `GAMES_DATA`:
-
+### Добавить новую игру
+Открой `data/games_data.py` и добавь словарь:
 ```python
 {
-    "id": "my_new_game",
-    "name": "Название игры",
+    "id": "my_game",
+    "name": "Название",
     "emoji": "🎮",
-    "launcher": "steam",  # steam / epic / battlenet / exe
-    "steam_id": 123456,   # если Steam
+    "launcher": "steam",
+    "steam_id": 123456,
     "color": "#FF6B6B",
+    "description": "Слоган",
     "optimizations": [
         {
             "id": "opt_1",
             "title": "Название оптимизации",
-            "description": "Описание что делает и почему помогает",
-            "category": "Графика",  # Графика / Производительность / Стабильность / Очистка / NVIDIA
-            "fps_gain": {"low": 5, "mid": 12, "high": 8},  # по тиру ПК
+            "description": "Что делает и почему помогает",
+            "category": "Графика",  # или Производительность / Стабильность / Очистка / NVIDIA
+            "fps_gain": {"low": 10, "mid": 6, "high": 2},
             "safe_for_anticheat": True,
-            "image_before": "assets/images/before_default.png",
-            "image_after": "assets/images/after_default.png",
         }
     ]
 }
 ```
 
-3. Перезапусти приложение — игра появится автоматически! 🎉
-
----
-
-## 📁 Структура проекта
-
-```
-GameOptimizerAI/
-├── main.py                    # Точка входа
-├── requirements.txt
-├── README.md
-├── assets/
-│   └── images/               # Иконки и изображения
-├── core/
-│   ├── pc_detector.py         # Определение железа
-│   ├── optimizer_engine.py    # Движок оптимизации
-│   ├── launcher.py            # Умный запуск игр
-│   └── parasite_cleaner.py    # Безопасная очистка
-├── ui/
-│   ├── app.py                 # Главное окно
-│   ├── game_card.py           # Карточка игры
-│   ├── game_window.py         # Окно оптимизации игры
-│   ├── ai_friend.py           # AI-чат друг
-│   ├── widgets.py             # Кастомные виджеты
-│   └── theme.py               # Pixar-тема и стили
-├── data/
-│   └── games_data.py          # База данных игр и оптимизаций
-└── utils/
-    ├── settings.py            # Настройки и сохранение
-    └── logger.py              # Логирование
+### Собрать .exe локально
+```bash
+pip install pyinstaller
+pyinstaller GameOptimizerAI.spec --clean
+# Результат: dist/GameOptimizerAI.exe
 ```
 
----
-
-## ⚠️ Важные предупреждения
-
-- **NVIDIA-функции** работают только с официальными драйверами NVIDIA
-- **Реестр Windows**: некоторые оптимизации изменяют реестр — создаётся резервная копия
-- **Администратор**: для некоторых оптимизаций требуются права администратора
-- **Античит**: мы никогда не трогаем процессы античита — аккаунт в безопасности
+### Выпустить новый релиз
+```bash
+git tag v1.1
+git push origin v1.1
+# GitHub Actions автоматически соберёт .exe и создаст Release!
+```
 
 ---
 
 ## 📜 Лицензия
 
-MIT License — используй, модифицируй, делись! 💕
+MIT — используй, модифицируй, делись! 💕
 
 ---
 
 <div align="center">
 
-*Сделано с любовью и щепоткой Pixar-магии* ✨
-
+*Сделано с любовью и щепоткой Pixar-магии* ✨  
 **Приятной игры!** 🎮💕
 
 </div>
