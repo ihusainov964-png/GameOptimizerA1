@@ -1,81 +1,162 @@
 # filepath: ui/app.py
 """
-Главное окно GameOptimizer AI.
-Pixar 2026 стиль — тёплый, уютный, «я краснею».
+Главное окно GameOptimizer AI  —  Pixar 2026 «я краснею» стиль.
 """
 
-import customtkinter as ctk
 import threading
+import customtkinter as ctk
+
 from ui.theme import *
-from ui.game_card import GameCard
-from ui.ai_friend import AIFriendPanel
-from ui.widgets import PixarButton, GlowLabel, Divider
+from ui.game_card   import GameCard
+from ui.ai_friend   import AIFriendPanel
+from ui.widgets     import PixarButton, Divider
 from core.ai_friend import AIFriend
 from core.pc_detector import get_pc_info
-from data.games_data import GAMES_DATA
+from data.games_data  import GAMES_DATA
 import utils.settings as settings
 
-
-# Настройка customtkinter
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 
-class WelcomeDialog(ctk.CTkToplevel):
-    """Приветственный диалог при первом запуске."""
+# ═══════════════════════════════════════════════════════════
+#  SPLASH SCREEN
+# ═══════════════════════════════════════════════════════════
 
-    def __init__(self, parent, on_name_set):
+class SplashScreen(ctk.CTkToplevel):
+    """Красивый экран загрузки при старте."""
+
+    def __init__(self, parent, on_done):
         super().__init__(parent)
-        self.on_name_set = on_name_set
+        self._on_done  = on_done
+        self._step     = 0
+        self._steps    = [
+            "Просыпаюсь... ☀️",
+            "Знакомлюсь с твоим железом 💻",
+            "Читаю базу оптимизаций 📚",
+            "Готовлю Pixar-магию ✨",
+            "Почти готово! 💕",
+        ]
 
-        self.title("Добро пожаловать! 💕")
-        self.geometry("480x380")
-        self.configure(fg_color=BG_MAIN)
-        self.resizable(False, False)
+        self.overrideredirect(True)          # без рамки окна
+        self.configure(fg_color=BG_DEEP)
+        self.geometry("440x320")
+        self._center()
+        self.lift()
         self.grab_set()
 
         self._build()
-
-        # Центрировать
-        self.after(10, self._center)
+        self.after(200, self._tick)
 
     def _center(self):
         self.update_idletasks()
-        w, h = 480, 380
-        sw = self.winfo_screenwidth()
-        sh = self.winfo_screenheight()
-        x = (sw - w) // 2
-        y = (sh - h) // 2
-        self.geometry(f"{w}x{h}+{x}+{y}")
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.geometry(f"440x320+{(sw-440)//2}+{(sh-320)//2}")
 
     def _build(self):
-        # Заголовочная иконка
-        ctk.CTkLabel(
-            self,
-            text="🌟",
-            font=("Segoe UI Emoji", 60),
-        ).pack(pady=(32, 0))
+        # Gradients via stacked frames
+        border = ctk.CTkFrame(self, fg_color=TEAL, corner_radius=RADIUS_LARGE)
+        border.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        inner = ctk.CTkFrame(border, fg_color=BG_DEEP, corner_radius=RADIUS_LARGE-2)
+        inner.place(relx=0, rely=0, relwidth=1, relheight=1,
+                    x=2, y=2, width=-4, height=-4)
 
         ctk.CTkLabel(
-            self,
-            text="GameOptimizer AI",
-            font=FONT_TITLE,
+            inner, text="🌟",
+            font=("Segoe UI Emoji", 56),
+        ).place(relx=0.5, rely=0.22, anchor="center")
+
+        ctk.CTkLabel(
+            inner, text="GameOptimizer AI",
+            font=("Segoe UI", 22, "bold"),
             text_color=TEAL,
-        ).pack(pady=(8, 0))
+        ).place(relx=0.5, rely=0.44, anchor="center")
+
+        ctk.CTkLabel(
+            inner, text="Твой Pixar-друг для максимального FPS 💕",
+            font=FONT_SMALL,
+            text_color=WHITE_FADED,
+        ).place(relx=0.5, rely=0.56, anchor="center")
+
+        self._bar = ctk.CTkProgressBar(
+            inner,
+            progress_color=TEAL,
+            fg_color=BORDER,
+            corner_radius=RADIUS_ROUND,
+            height=6,
+        )
+        self._bar.place(relx=0.1, rely=0.72, relwidth=0.8)
+        self._bar.set(0)
+
+        self._msg = ctk.CTkLabel(
+            inner, text="Запускаю...",
+            font=FONT_TINY,
+            text_color=WHITE_FADED,
+        )
+        self._msg.place(relx=0.5, rely=0.83, anchor="center")
+
+    def _tick(self):
+        if self._step >= len(self._steps):
+            self.grab_release()
+            self.destroy()
+            self._on_done()
+            return
+        pct = (self._step + 1) / len(self._steps)
+        self._bar.set(pct)
+        self._msg.configure(text=self._steps[self._step])
+        self._step += 1
+        self.after(380, self._tick)
+
+
+# ═══════════════════════════════════════════════════════════
+#  WELCOME DIALOG
+# ═══════════════════════════════════════════════════════════
+
+class WelcomeDialog(ctk.CTkToplevel):
+    """Диалог первого знакомства."""
+
+    def __init__(self, parent, on_name_set):
+        super().__init__(parent)
+        self._on_name_set = on_name_set
+
+        self.title("Привет! 💕")
+        self.geometry("480x390")
+        self.configure(fg_color=BG_MAIN)
+        self.resizable(False, False)
+        self.grab_set()
+        self.after(10, self._center)
+        self._build()
+
+    def _center(self):
+        self.update_idletasks()
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.geometry(f"480x390+{(sw-480)//2}+{(sh-390)//2}")
+
+    def _build(self):
+        # Pink accent top bar
+        ctk.CTkFrame(self, fg_color=PINK, height=3, corner_radius=0).pack(fill="x")
+
+        ctk.CTkLabel(self, text="🌟",
+                     font=("Segoe UI Emoji", 54)).pack(pady=(28, 0))
+
+        ctk.CTkLabel(self, text="GameOptimizer AI",
+                     font=("Segoe UI", 20, "bold"),
+                     text_color=TEAL).pack(pady=(6, 0))
 
         ctk.CTkLabel(
             self,
-            text="Привет! Я Лuma — твой личный игровой друг 💕\nДавай познакомимся — как тебя зовут?",
+            text="Привет! Я Лuma — твой личный игровой друг 💕\n"
+                 "Давай познакомимся — как тебя зовут?",
             font=FONT_BODY,
             text_color=WHITE_DIM,
             justify="center",
-        ).pack(pady=(12, 20))
+        ).pack(pady=(10, 18))
 
-        # Поле ввода имени
-        self._name_var = ctk.StringVar()
-        name_entry = ctk.CTkEntry(
+        self._var = ctk.StringVar()
+        entry = ctk.CTkEntry(
             self,
-            textvariable=self._name_var,
+            textvariable=self._var,
             placeholder_text="Введи своё имя...",
             fg_color=BG_INPUT,
             border_color=TEAL_DIM,
@@ -83,22 +164,19 @@ class WelcomeDialog(ctk.CTkToplevel):
             placeholder_text_color=WHITE_FADED,
             corner_radius=RADIUS_MEDIUM,
             font=FONT_BODY,
-            width=260,
-            height=44,
+            width=260, height=44,
             justify="center",
         )
-        name_entry.pack()
-        name_entry.bind("<Return>", self._confirm)
-        name_entry.focus()
+        entry.pack()
+        entry.bind("<Return>", self._confirm)
+        entry.focus_set()
 
         PixarButton(
-            self,
-            text="✨ Начнём! ✨",
+            self, text="✨ Начнём! ✨",
             style="primary",
             command=self._confirm,
-            width=180,
-            height=44,
-        ).pack(pady=20)
+            width=180, height=44,
+        ).pack(pady=18)
 
         ctk.CTkLabel(
             self,
@@ -107,17 +185,18 @@ class WelcomeDialog(ctk.CTkToplevel):
             text_color=WHITE_FADED,
         ).pack()
 
-    def _confirm(self, event=None):
-        name = self._name_var.get().strip()
-        if not name:
-            name = "Друг"
+    def _confirm(self, _=None):
+        name = self._var.get().strip() or "Друг"
         settings.set_val("user_name", name)
-        self.on_name_set(name)
+        self._on_name_set(name)
         self.destroy()
 
 
+# ═══════════════════════════════════════════════════════════
+#  MAIN APP
+# ═══════════════════════════════════════════════════════════
+
 class MainApp(ctk.CTk):
-    """Главное окно приложения."""
 
     def __init__(self):
         super().__init__()
@@ -126,106 +205,84 @@ class MainApp(ctk.CTk):
         self.geometry(f"{WINDOW_W}x{WINDOW_H}")
         self.configure(fg_color=BG_DEEP)
         self.minsize(1000, 600)
+        self.after(10, self._center)
 
-        # Центрировать
-        self.after(10, self._center_window)
+        self.user_name  = settings.get("user_name", "")
+        self.ai         = AIFriend(self.user_name or "друг")
+        self.pc         = None
+        self._cards: dict[str, GameCard] = {}   # game_id → card
 
-        # Данные
-        self.user_name = settings.get("user_name", "")
-        self.ai = AIFriend(self.user_name or "друг")
-        self.pc = None  # загрузим в фоне
+        # Hide main window behind splash
+        self.withdraw()
+        SplashScreen(self, self._after_splash)
 
-        # Построить UI
+    # ── Window helpers ────────────────────────────────────
+
+    def _center(self):
+        self.update_idletasks()
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.geometry(f"{WINDOW_W}x{WINDOW_H}+{(sw-WINDOW_W)//2}+{(sh-WINDOW_H)//2}")
+
+    def _after_splash(self):
+        """Вызывается когда сплэш закрыт."""
+        self.deiconify()
         self._build()
-
-        # Загрузить ПК в фоне
         threading.Thread(target=self._load_pc, daemon=True).start()
-
-        # Приветствие при первом запуске
         if not self.user_name:
-            self.after(200, self._show_welcome)
+            self.after(300, self._show_welcome)
         else:
             self.ai.set_name(self.user_name)
+            self.after(600, lambda: self._ai_panel.notify(self.ai.get_greeting()))
 
-    def _center_window(self):
-        self.update_idletasks()
-        w, h = WINDOW_W, WINDOW_H
-        sw = self.winfo_screenwidth()
-        sh = self.winfo_screenheight()
-        x = (sw - w) // 2
-        y = (sh - h) // 2
-        self.geometry(f"{w}x{h}+{x}+{y}")
+    # ── Build UI ──────────────────────────────────────────
 
     def _build(self):
-        """Построить главный интерфейс."""
-
-        # ── Верхняя навигация ──────────────────────
         self._build_navbar()
 
-        # ── Основная область ───────────────────────
         body = ctk.CTkFrame(self, fg_color="transparent")
         body.pack(fill="both", expand=True)
 
-        # Левая панель игр
         self._games_panel = ctk.CTkScrollableFrame(
-            body,
-            fg_color=BG_MAIN,
-            corner_radius=0,
-        )
+            body, fg_color=BG_MAIN, corner_radius=0)
         self._games_panel.pack(side="left", fill="both", expand=True)
 
-        # Правая панель AI-друга
         self._ai_panel = AIFriendPanel(body, self.ai)
         self._ai_panel.pack(side="right", fill="y")
 
-        # Наполнить игровые карточки
         self._build_games_grid()
 
     def _build_navbar(self):
-        """Построить навигационную панель."""
-        nav = ctk.CTkFrame(self, fg_color=BG_PANEL, height=64, corner_radius=0)
+        nav = ctk.CTkFrame(self, fg_color=BG_PANEL, height=62, corner_radius=0)
         nav.pack(fill="x")
         nav.pack_propagate(False)
 
-        # Цветная полоска сверху
         ctk.CTkFrame(nav, fg_color=TEAL, height=2, corner_radius=0).pack(fill="x", side="top")
 
-        nav_inner = ctk.CTkFrame(nav, fg_color="transparent")
-        nav_inner.pack(fill="both", expand=True, padx=20)
+        inner = ctk.CTkFrame(nav, fg_color="transparent")
+        inner.pack(fill="both", expand=True, padx=20)
 
-        # Логотип
-        logo_frame = ctk.CTkFrame(nav_inner, fg_color="transparent")
-        logo_frame.pack(side="left", pady=10)
+        # Logo
+        logo = ctk.CTkFrame(inner, fg_color="transparent")
+        logo.pack(side="left", pady=8)
+        ctk.CTkLabel(logo, text="🎮",
+                     font=("Segoe UI Emoji", 26)).pack(side="left")
+        ctk.CTkLabel(logo, text="GameOptimizer AI",
+                     font=FONT_SUBTITLE, text_color=TEAL).pack(side="left", padx=8)
 
-        ctk.CTkLabel(
-            logo_frame,
-            text="🎮",
-            font=("Segoe UI Emoji", 28),
-        ).pack(side="left")
+        # Right side
+        right = ctk.CTkFrame(inner, fg_color="transparent")
+        right.pack(side="right", pady=8)
 
-        ctk.CTkLabel(
-            logo_frame,
-            text="GameOptimizer AI",
-            font=FONT_SUBTITLE,
-            text_color=TEAL,
-        ).pack(side="left", padx=10)
-
-        # Правая часть навбара
-        right_frame = ctk.CTkFrame(nav_inner, fg_color="transparent")
-        right_frame.pack(side="right", pady=10)
-
-        # Имя пользователя
         self._user_label = ctk.CTkLabel(
-            right_frame,
-            text=f"Привет, {self.user_name or 'друг'}! 💕" if self.user_name else "💕",
+            right,
+            text=f"Привет, {self.user_name}! 💕" if self.user_name else "💕",
             font=FONT_BODY,
             text_color=PINK_SOFT,
         )
         self._user_label.pack(side="right", padx=10)
 
-        # Кнопка информации о ПК
         self._pc_btn = ctk.CTkButton(
-            right_frame,
+            right,
             text="💻 Мой ПК",
             fg_color="transparent",
             hover_color=BG_CARD_HOV,
@@ -234,158 +291,119 @@ class MainApp(ctk.CTk):
             border_color=BORDER_GLOW,
             corner_radius=RADIUS_SMALL,
             font=FONT_SMALL,
-            width=90,
+            width=96,
             command=self._show_pc_info,
         )
         self._pc_btn.pack(side="right", padx=5)
 
     def _build_games_grid(self):
-        """Построить сетку игровых карточек."""
-        # Заголовок секции
         header = ctk.CTkFrame(self._games_panel, fg_color="transparent")
-        header.pack(fill="x", padx=24, pady=(20, 8))
+        header.pack(fill="x", padx=24, pady=(20, 6))
 
-        ctk.CTkLabel(
-            header,
-            text="🎮 Выбери игру",
-            font=FONT_TITLE,
-            text_color=WHITE,
-        ).pack(side="left")
+        ctk.CTkLabel(header, text="🎮 Выбери игру",
+                     font=FONT_TITLE, text_color=WHITE).pack(side="left")
+        ctk.CTkLabel(header, text=f"{len(GAMES_DATA)} игр",
+                     font=FONT_SMALL, text_color=WHITE_FADED).pack(side="left", padx=10)
 
-        ctk.CTkLabel(
-            header,
-            text=f"{len(GAMES_DATA)} игр",
-            font=FONT_SMALL,
-            text_color=WHITE_FADED,
-        ).pack(side="left", padx=12)
+        grid = ctk.CTkFrame(self._games_panel, fg_color="transparent")
+        grid.pack(fill="both", expand=True, padx=16, pady=8)
 
-        # Контейнер сетки
-        grid_frame = ctk.CTkFrame(self._games_panel, fg_color="transparent")
-        grid_frame.pack(fill="both", expand=True, padx=16, pady=8)
-
-        # Расставляем карточки
         COLS = 4
         for i, game in enumerate(GAMES_DATA):
-            row = i // COLS
-            col = i % COLS
-
-            card = GameCard(
-                grid_frame,
-                game=game,
-                on_click=self._open_game_window,
-            )
+            row, col = divmod(i, COLS)
+            card = GameCard(grid, game=game, on_click=self._open_game)
             card.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
-            grid_frame.grid_columnconfigure(col, weight=1)
+            grid.grid_columnconfigure(col, weight=1)
+            self._cards[game["id"]] = card
 
-        # Нижний отступ
-        ctk.CTkLabel(
-            self._games_panel,
-            text="",
-            height=20,
-        ).pack()
+        # Padding row
+        ctk.CTkLabel(self._games_panel, text="", height=20).pack()
 
-    def _open_game_window(self, game: dict):
-        """Открыть окно оптимизации игры."""
+    # ── Actions ───────────────────────────────────────────
+
+    def _open_game(self, game: dict):
         from ui.game_window import GameWindow
-        win = GameWindow(self, game, user_name=self.user_name)
+        win = GameWindow(self, game, user_name=self.user_name,
+                         on_applied=self._on_optimization_applied)
         win.focus()
-
-        # AI-друг комментирует
         self.after(300, lambda: self._ai_panel.notify(
-            f"О, {game['name']}! {game.get('emoji', '')} Хороший выбор, {self.user_name}! "
-            f"Давай настроим её по максимуму! 🚀"
+            f"О, {game['name']}! {game.get('emoji','')} Отличный выбор, "
+            f"{self.user_name or 'друг'}! Давай настроим всё по максимуму 🚀"
         ))
 
+    def _on_optimization_applied(self, game_id: str):
+        """Обновить бейдж карточки после применения оптимизации."""
+        card = self._cards.get(game_id)
+        if card:
+            applied = len(settings.get_applied_optimizations(game_id))
+            card.refresh_badge(applied)
+
     def _show_welcome(self):
-        """Показать диалог первого запуска."""
-        dialog = WelcomeDialog(self, self._on_name_set)
+        WelcomeDialog(self, self._on_name_set)
 
     def _on_name_set(self, name: str):
-        """Обработчик установки имени."""
         self.user_name = name
         self.ai.set_name(name)
         self._user_label.configure(text=f"Привет, {name}! 💕")
-
-        # Приветствие от AI
         self.after(200, lambda: self._ai_panel.notify(
             f"Привет, {name}! 🎉 Я так рада познакомиться с тобой!\n"
-            f"Нажми на любую игру — и мы начнём! ✨"
+            "Нажми на любую игру — и мы начнём! ✨"
         ))
 
     def _show_pc_info(self):
-        """Показать информацию о ПК."""
         if not self.pc:
             return
 
-        info_win = ctk.CTkToplevel(self)
-        info_win.title("💻 Твой ПК")
-        info_win.geometry("400x320")
-        info_win.configure(fg_color=BG_MAIN)
-        info_win.resizable(False, False)
-        info_win.grab_set()
+        win = ctk.CTkToplevel(self)
+        win.title("💻 Твой ПК")
+        win.geometry("400x330")
+        win.configure(fg_color=BG_MAIN)
+        win.resizable(False, False)
+        win.grab_set()
+        win.after(5, lambda: win.geometry(
+            f"400x330+{(win.winfo_screenwidth()-400)//2}+"
+            f"{(win.winfo_screenheight()-330)//2}"
+        ))
 
-        ctk.CTkLabel(
-            info_win,
-            text="💻 Твоё железо",
-            font=FONT_TITLE,
-            text_color=TEAL,
-        ).pack(pady=(24, 16))
+        ctk.CTkFrame(win, fg_color=TEAL, height=3, corner_radius=0).pack(fill="x")
+        ctk.CTkLabel(win, text="💻 Твоё железо",
+                     font=FONT_TITLE, text_color=TEAL).pack(pady=(20, 12))
 
-        tier_colors = {"low": WARNING, "mid": TEAL, "high": SUCCESS}
-        tier_names = {"low": "Начальный", "mid": "Средний", "high": "Высокий"}
-        tier_color = tier_colors.get(self.pc.tier, TEAL)
-        tier_name = tier_names.get(self.pc.tier, "Средний")
+        tier_col  = {"low": WARNING, "mid": TEAL, "high": SUCCESS}.get(self.pc.tier, TEAL)
+        tier_name = {"low": "Начальный 🐣", "mid": "Средний 🚀", "high": "Высокий 🔥"}.get(
+            self.pc.tier, "Средний")
 
-        info_frame = ctk.CTkFrame(info_win, fg_color=BG_CARD, corner_radius=RADIUS_LARGE)
-        info_frame.pack(fill="x", padx=24)
+        card = ctk.CTkFrame(win, fg_color=BG_CARD, corner_radius=RADIUS_LARGE)
+        card.pack(fill="x", padx=24)
 
         rows = [
-            ("🖥 CPU", self.pc.cpu_name[:40]),
-            ("💾 RAM", f"{self.pc.ram_gb} GB"),
-            ("🎮 GPU", self.pc.gpu_name[:40]),
-            ("📊 VRAM", f"{self.pc.gpu_vram_gb} GB"),
-            ("⚡ Тир ПК", tier_name),
+            ("🖥  CPU",  self.pc.cpu_name[:38]),
+            ("💾  RAM",  f"{self.pc.ram_gb} GB"),
+            ("🎮  GPU",  self.pc.gpu_name[:38]),
+            ("📊  VRAM", f"{self.pc.gpu_vram_gb} GB"),
+            ("⚡  Тир",  tier_name),
         ]
+        for label, value in rows:
+            r = ctk.CTkFrame(card, fg_color="transparent")
+            r.pack(fill="x", padx=16, pady=3)
+            ctk.CTkLabel(r, text=label, font=FONT_SMALL,
+                         text_color=WHITE_FADED, width=72, anchor="w").pack(side="left")
+            ctk.CTkLabel(r, text=value,
+                         font=FONT_BODY_BOLD if "Тир" in label else FONT_SMALL,
+                         text_color=tier_col if "Тир" in label else WHITE,
+                         anchor="w").pack(side="left", padx=6)
 
-        for icon_label, value in rows:
-            row = ctk.CTkFrame(info_frame, fg_color="transparent")
-            row.pack(fill="x", padx=16, pady=4)
+        ctk.CTkLabel(win,
+                     text="💕 Оценки FPS подобраны специально под твоё железо!",
+                     font=FONT_TINY, text_color=WHITE_FADED).pack(pady=14)
 
-            ctk.CTkLabel(
-                row,
-                text=icon_label,
-                font=FONT_SMALL,
-                text_color=WHITE_FADED,
-                width=80,
-                anchor="w",
-            ).pack(side="left")
-
-            ctk.CTkLabel(
-                row,
-                text=value,
-                font=FONT_BODY_BOLD if icon_label == "⚡ Тир ПК" else FONT_SMALL,
-                text_color=tier_color if icon_label == "⚡ Тир ПК" else WHITE,
-                anchor="w",
-            ).pack(side="left", padx=8)
-
-        ctk.CTkLabel(
-            info_win,
-            text="💕 Оценки FPS подобраны специально под твоё железо!",
-            font=FONT_TINY,
-            text_color=WHITE_FADED,
-        ).pack(pady=16)
-
-        PixarButton(
-            info_win,
-            text="Отлично!",
-            style="primary",
-            command=info_win.destroy,
-            width=120,
-        ).pack()
+        PixarButton(win, text="Отлично!", style="primary",
+                    command=win.destroy, width=120).pack()
 
     def _load_pc(self):
-        """Загрузить информацию о ПК в фоне."""
         self.pc = get_pc_info()
+        tier_label = {"low": "Начальный", "mid": "Средний", "high": "Высокий"}.get(
+            self.pc.tier, "ПК")
         self.after(0, lambda: self._pc_btn.configure(
-            text=f"💻 {self.pc.tier.upper()} тир"
+            text=f"💻 {tier_label} тир"
         ))

@@ -3,9 +3,7 @@
 Окно оптимизации конкретной игры.
 """
 
-import tkinter as tk
 import customtkinter as ctk
-import random
 import threading
 from ui.theme import *
 from ui.widgets import (
@@ -21,11 +19,12 @@ from utils.settings import get_applied_optimizations, mark_optimization_applied
 class GameWindow(ctk.CTkToplevel):
     """Окно оптимизации с вкладками по категориям."""
 
-    def __init__(self, parent, game: dict, user_name: str = ""):
+    def __init__(self, parent, game: dict, user_name: str = "", on_applied=None):
         super().__init__(parent)
 
         self.game = game
         self.user_name = user_name
+        self.on_applied = on_applied  # callback(game_id)
         self.pc = get_pc_info()
         self.applied = set(get_applied_optimizations(game["id"]))
         self.game_color = game.get("color", TEAL)
@@ -370,6 +369,9 @@ class GameWindow(ctk.CTkToplevel):
                 f"✅ {opt['title']} — готово! Ожидаемый прирост: {fps}"
             ))
             self.after(100, lambda: self._show_category(self._current_category))
+            # Уведомить главное окно обновить бейдж карточки
+            if self.on_applied:
+                self.after(150, lambda: self.on_applied(self.game["id"]))
 
         threading.Thread(target=run, daemon=True).start()
 
@@ -443,6 +445,7 @@ class _ProgressWindow(ctk.CTkToplevel):
         super().__init__(parent)
         self.accent = accent
         self.user_name = user_name
+        self.on_applied = on_applied  # callback(game_id)
         self.game_name = game_name
         self._done = False
 
