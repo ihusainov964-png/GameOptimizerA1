@@ -1,109 +1,140 @@
-# filepath: ui/game_card.py
+# filepath: core/launcher.py
 """
-Карточка игры — Pixar 2026 стиль.
+Умный лаунчер игр.
+Определяет правильный способ запуска каждой игры через её лаунчер.
 """
 
-import customtkinter as ctk
-from ui.theme import *
+import os
+import subprocess
+import sys
+from utils.logger import get_logger
+
+log = get_logger("Launcher")
 
 
-def _bind_tree(widget, event, cb):
-    """Привязать событие рекурсивно ко всем дочерним виджетам."""
+def launch_game(game: dict) -> tuple[bool, str]:
+    """
+    Запустить игру через правильный лаунчер.
+    Возвращает (успех, сообщение).
+    """
+    launcher_type = game.get("launcher", "")
+    game_name = game.get("name", "Игра")
+
+    log.info(f"Запускаю {game_name} через лаунчер: {launcher_type}")
+
     try:
-        widget.bind(event, cb)
-    except Exception:
-        pass
-    for child in widget.winfo_children():
-        _bind_tree(child, event, cb)
-
-
-class GameCard(ctk.CTkFrame):
-
-    def __init__(self, master, game: dict, on_click=None, **kwargs):
-        super().__init__(
-            master,
-            fg_color=BG_CARD,
-            corner_radius=RADIUS_LARGE,
-            border_width=1,
-            border_color=BORDER,
-            width=CARD_W,
-            height=CARD_H,
-            **kwargs,
-        )
-        self.game     = game
-        self.on_click = on_click
-        self._color   = game.get("color", TEAL)
-
-        self.grid_propagate(False)
-        self.pack_propagate(False)
-
-        self._build()
-        self.after(30, self._setup_hover)
-
-    def _build(self):
-        # Цветная полоска вверху
-        ctk.CTkFrame(self, fg_color=self._color,
-                     height=4, corner_radius=0).pack(fill="x")
-
-        # Emoji
-        ctk.CTkLabel(self,
-                     text=self.game.get("emoji", "🎮"),
-                     font=("Segoe UI Emoji", 38)).pack(pady=(12, 2))
-
-        # Название
-        ctk.CTkLabel(self,
-                     text=self.game.get("name", ""),
-                     font=FONT_BODY_BOLD,
-                     text_color=WHITE,
-                     wraplength=CARD_W - 16).pack(padx=6)
-
-        # Слоган
-        ctk.CTkLabel(self,
-                     text=self.game.get("description", ""),
-                     font=FONT_TINY,
-                     text_color=WHITE_FADED,
-                     wraplength=CARD_W - 16).pack(padx=6, pady=(2, 6))
-
-        # Бейдж
-        count = len(self.game.get("optimizations", []))
-        self._badge = ctk.CTkFrame(self,
-                                   fg_color=self._color + "22",
-                                   corner_radius=RADIUS_SMALL,
-                                   border_width=1,
-                                   border_color=self._color + "55")
-        self._badge.pack(padx=14, pady=(0, 12))
-        self._badge_lbl = ctk.CTkLabel(self._badge,
-                                       text=f"⚡ {count} оптимизаций",
-                                       font=FONT_TINY,
-                                       text_color=self._color)
-        self._badge_lbl.pack(padx=8, pady=3)
-
-    def _setup_hover(self):
-        _bind_tree(self, "<Enter>",    self._on_enter)
-        _bind_tree(self, "<Leave>",    self._on_leave)
-        _bind_tree(self, "<Button-1>", self._on_click)
-
-    def _on_enter(self, _=None):
-        self.configure(border_color=self._color, fg_color=BG_CARD_HOV)
-
-    def _on_leave(self, _=None):
-        self.configure(border_color=BORDER, fg_color=BG_CARD)
-
-    def _on_click(self, _=None):
-        if self.on_click:
-            self.on_click(self.game)
-
-    def refresh_badge(self, applied: int):
-        total = len(self.game.get("optimizations", []))
-        if applied:
-            self._badge_lbl.configure(
-                text=f"✅ {applied}/{total} применено",
-                text_color=SUCCESS)
-            self._badge.configure(fg_color=SUCCESS + "22",
-                                  border_color=SUCCESS + "55")
+        if launcher_type == "steam":
+            return _launch_steam(game)
+        elif launcher_type == "epic":
+            return _launch_epic(game)
+        elif launcher_type == "battlenet":
+            return _launch_battlenet(game)
+        elif launcher_type == "riot":
+            return _launch_riot(game)
+        elif launcher_type == "wargaming":
+            return _launch_wargaming(game)
+        elif launcher_type == "exe":
+            return _launch_exe(game)
         else:
-            self._badge_lbl.configure(
-                text=f"⚡ {total} оптимизаций",
-                text_color=self._color)
-            self._badge.configure(fg_color=self._color + "22",
-                                  border_color=self._color + "55")
+            return False, f"Неизвестный лаунчер: {launcher_type}"
+
+    except Exception as e:
+        log.error(f"Ошибка запуска {game_name}: {e}")
+        return False, f"Ошибка запуска: {str(e)}"
+
+
+def _launch_steam(game: dict) -> tuple[bool, str]:
+    """Запустить через Steam."""
+    steam_id = game.get("steam_id")
+    if not steam_id:
+        return False, "Steam App ID не указан"
+
+    url = f"steam://rungameid/{steam_id}"
+    log.info(f"Steam URL: {url}")
+
+    if sys.platform == "win32":
+        os.startfile(url)
+    else:
+        subprocess.Popen(["xdg-open", url])
+
+    return True, f"🚀 Запускаю через Steam..."
+
+
+def _launch_epic(game: dict) -> tuple[bool, str]:
+    """Запустить через Epic Games Launcher."""
+    epic_id = game.get("epic_id", "")
+
+    if epic_id:
+        url = f"com.epicgames.launcher://apps/{epic_id}?action=launch"
+    else:
+        url = "com.epicgames.launcher://"
+
+    log.info(f"Epic URL: {url}")
+
+    if sys.platform == "win32":
+        os.startfile(url)
+    else:
+        subprocess.Popen(["xdg-open", url])
+
+    return True, f"🚀 Запускаю через Epic Games..."
+
+
+def _launch_battlenet(game: dict) -> tuple[bool, str]:
+    """Запустить через Battle.net."""
+    product = game.get("battlenet_product", "")
+    url = f"battlenet://{product}" if product else "battlenet://"
+
+    if sys.platform == "win32":
+        os.startfile(url)
+    else:
+        subprocess.Popen(["xdg-open", url])
+
+    return True, f"🚀 Запускаю через Battle.net..."
+
+
+def _launch_riot(game: dict) -> tuple[bool, str]:
+    """Запустить через Riot Client."""
+    # Riot Games требует запуска через RiotClientServices
+    riot_paths = [
+        r"C:\Riot Games\Riot Client\RiotClientServices.exe",
+        os.path.expandvars(r"%PROGRAMFILES%\Riot Games\Riot Client\RiotClientServices.exe"),
+    ]
+
+    product = game.get("riot_product", "valorant")
+
+    for path in riot_paths:
+        if os.path.exists(path):
+            subprocess.Popen([path, f"--launch-product={product}", "--launch-patchline=live"])
+            return True, f"🚀 Запускаю через Riot Client..."
+
+    return False, "Riot Client не найден. Установи его с официального сайта."
+
+
+def _launch_wargaming(game: dict) -> tuple[bool, str]:
+    """Запустить через Wargaming Game Center."""
+    wgc_paths = [
+        r"C:\Games\World_of_Tanks\WoTLauncher.exe",
+        os.path.expandvars(r"%PROGRAMFILES(X86)%\World_of_Tanks\WoTLauncher.exe"),
+    ]
+
+    for path in wgc_paths:
+        if os.path.exists(path):
+            subprocess.Popen([path])
+            return True, f"🚀 Запускаю через Wargaming Game Center..."
+
+    # Запасной вариант — через URL
+    try:
+        os.startfile("wotgameclient://")
+        return True, f"🚀 Запускаю через Wargaming Game Center..."
+    except Exception:
+        return False, "Wargaming Game Center не найден."
+
+
+def _launch_exe(game: dict) -> tuple[bool, str]:
+    """Запустить напрямую через EXE."""
+    exe_path = game.get("exe_path", "")
+    if not exe_path or not os.path.exists(exe_path):
+        return False, f"Исполняемый файл не найден: {exe_path}"
+
+    subprocess.Popen([exe_path], cwd=os.path.dirname(exe_path))
+    return True, f"🚀 Запускаю напрямую..."
