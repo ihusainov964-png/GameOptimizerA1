@@ -1,73 +1,81 @@
-name: 🎮 Build GameOptimizer AI
+name: Build GameOptimizer AI
 
 on:
   push:
     tags:
-      - 'v*'          # Запускается при тегах v1.0, v1.1 и т.д.
-  workflow_dispatch:  # Кнопка ручного запуска в GitHub
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build-windows:
-    name: 🪟 Windows EXE
+    name: Windows EXE
     runs-on: windows-latest
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🐍 Setup Python 3.11
+      - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+          pip install customtkinter==5.2.2 Pillow psutil screeninfo
+          pip install pyinstaller==5.13.2
 
-      - name: 🔨 Build EXE with PyInstaller
+      - name: Build EXE
         run: |
-          pyinstaller GameOptimizerAI.spec --clean --noconfirm
+          pyinstaller `
+            --noconfirm `
+            --onefile `
+            --windowed `
+            --name "GameOptimizerAI" `
+            --add-data "data;data" `
+            --hidden-import customtkinter `
+            --hidden-import PIL `
+            --hidden-import PIL.Image `
+            --hidden-import PIL.ImageTk `
+            --hidden-import psutil `
+            --hidden-import screeninfo `
+            --hidden-import tkinter `
+            --collect-all customtkinter `
+            main.py
 
-      - name: ✅ Test EXE exists
+      - name: Check result
         run: |
           if (Test-Path "dist/GameOptimizerAI.exe") {
-            Write-Host "✅ EXE built successfully!"
             $size = (Get-Item "dist/GameOptimizerAI.exe").Length / 1MB
-            Write-Host "Size: $([math]::Round($size, 1)) MB"
+            Write-Host "SUCCESS! Size: $([math]::Round($size,1)) MB"
           } else {
-            Write-Host "❌ EXE not found!"
+            Get-ChildItem dist/ -ErrorAction SilentlyContinue
+            Write-Host "ERROR: EXE not found"
             exit 1
           }
 
-      - name: 📦 Create release archive
+      - name: Create ZIP
         run: |
-          Compress-Archive -Path dist/GameOptimizerAI.exe -DestinationPath GameOptimizerAI-Windows.zip
+          Compress-Archive -Path "dist/GameOptimizerAI.exe" -DestinationPath "GameOptimizerAI-Windows.zip"
 
-      - name: 🚀 Upload to GitHub Release
+      - name: Upload to Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: GameOptimizerAI-Windows.zip
           body: |
-            ## 🎮 GameOptimizer AI ${{ github.ref_name }}
-
-            ### 🪟 Установка (Windows)
-            1. Скачай `GameOptimizerAI-Windows.zip`
-            2. Распакуй архив
-            3. Запусти `GameOptimizerAI.exe`
-            4. Никаких дополнительных установок не нужно! ✨
-
-            ### ✨ Что нового
-            - Pixar 2026 дизайн
-            - 11 игр, 88 оптимизаций
-            - AI-друг Лuma
-            - Безопасная очистка (защита античита)
+            ## GameOptimizer AI ${{ github.ref_name }}
+            
+            ### Установка
+            1. Скачай GameOptimizerAI-Windows.zip
+            2. Распакуй
+            3. Запусти GameOptimizerAI.exe — больше ничего не нужно!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📤 Upload artifact (для обычных push)
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: GameOptimizerAI-Windows
