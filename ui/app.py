@@ -54,47 +54,56 @@ class SplashScreen(ctk.CTkToplevel):
         self.geometry(f"440x320+{(sw-440)//2}+{(sh-320)//2}")
 
     def _build(self):
-        # Gradients via stacked frames
+        # Внешняя рамка цвета TEAL
         border = ctk.CTkFrame(self, fg_color=TEAL, corner_radius=RADIUS_LARGE)
-        border.place(relx=0, rely=0, relwidth=1, relheight=1)
+        border.pack(fill="both", expand=True, padx=0, pady=0)
 
-        inner = ctk.CTkFrame(border, fg_color=BG_DEEP, corner_radius=RADIUS_LARGE-2)
-        inner.place(relx=0, rely=0, relwidth=1, relheight=1,
-                    x=2, y=2, width=-4, height=-4)
+        # Внутренний тёмный фрейм с отступом 2px
+        inner = ctk.CTkFrame(border, fg_color=BG_DEEP, corner_radius=RADIUS_LARGE - 2)
+        inner.pack(fill="both", expand=True, padx=2, pady=2)
 
+        # Спейсер сверху
+        ctk.CTkLabel(inner, text="", height=30).pack()
+
+        # Иконка
         ctk.CTkLabel(
             inner, text="🌟",
             font=("Segoe UI Emoji", 56),
-        ).place(relx=0.5, rely=0.22, anchor="center")
+        ).pack()
 
+        # Название
         ctk.CTkLabel(
             inner, text="GameOptimizer AI",
             font=("Segoe UI", 22, "bold"),
             text_color=TEAL,
-        ).place(relx=0.5, rely=0.44, anchor="center")
+        ).pack(pady=(8, 2))
 
+        # Подпись
         ctk.CTkLabel(
             inner, text="Твой Pixar-друг для максимального FPS 💕",
             font=FONT_SMALL,
             text_color=WHITE_FADED,
-        ).place(relx=0.5, rely=0.56, anchor="center")
+        ).pack(pady=(0, 16))
 
+        # Прогресс-бар
         self._bar = ctk.CTkProgressBar(
             inner,
             progress_color=TEAL,
             fg_color=BORDER,
             corner_radius=RADIUS_ROUND,
             height=6,
+            width=320,
         )
-        self._bar.place(relx=0.1, rely=0.72, relwidth=0.8)
+        self._bar.pack(pady=(0, 8))
         self._bar.set(0)
 
+        # Статус
         self._msg = ctk.CTkLabel(
             inner, text="Запускаю...",
             font=FONT_TINY,
             text_color=WHITE_FADED,
         )
-        self._msg.place(relx=0.5, rely=0.83, anchor="center")
+        self._msg.pack()
 
     def _tick(self):
         if self._step >= len(self._steps):
